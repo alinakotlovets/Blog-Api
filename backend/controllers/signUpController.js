@@ -22,7 +22,11 @@ export const validateUser = [
                 throw new Error("Passwords do not match");
             }
             return true;
-        })
+        }),
+    body("role")
+        .optional()
+        .isIn(["reader", "admin"])
+        .withMessage("Invalid role")
 ]
 
 export async function addUser(req, res){
@@ -36,9 +40,12 @@ export async function addUser(req, res){
         })
     }
 
-    const {username, password, confirmPassword} = matchedData(req);
+    let {username, password, confirmPassword, role} = matchedData(req);
+    if(!role){
+        role = "reader"
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await addUserToBd(username, hashedPassword);
+    await addUserToBd(username, hashedPassword, role);
     res.status(200).json({
         message:"user added successfully",
         redirectTo: "sign-in.html"

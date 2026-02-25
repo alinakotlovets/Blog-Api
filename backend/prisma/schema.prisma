@@ -8,9 +8,34 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
   password  String
-  role      String   @default("reader")
+  role      String    @default("reader")
+  createdAt DateTime  @default(now())
+  posts     Post[]
+  comments  Comment[]
+}
+
+model Post {
+  id           Int       @id @default(autoincrement())
+  title        String
+  content      String
+  previewImage String?
+  isPublic     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  authorId     Int
+  user         User      @relation(fields: [authorId], references: [id])
+  comments     Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  comment   String
   createdAt DateTime @default(now())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
 }

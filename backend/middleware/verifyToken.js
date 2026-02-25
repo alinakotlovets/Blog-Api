@@ -12,7 +12,11 @@ export function verifyToken(req, res, next){
         if (err) {
             req.user = null;
         } else {
-            req.user = authData;
+            req.user = {
+                id: authData.userId,
+                username: authData.username,
+                role: authData.role
+            };
         }
         next();
     });

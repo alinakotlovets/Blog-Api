@@ -1,13 +1,10 @@
-import {API_BASE} from "../config.js";
+import {API_BASE, AUTHOR_LINK} from "../config.js";
+import {getHeaders} from "./getHeaders.js";
 
-const contentBox = document.getElementById("content-box");
-const token = localStorage.getItem("token");
 
 async function showWelcome(){
-    const headers = {"Content-Type": "application/json"};
-    if(token) {
-        headers["Authorization"] = `Bearer ${token}`;
-    }
+    const navBox = document.getElementById("nav-box");
+    const headers = getHeaders();
     const response = await fetch(`${API_BASE}/`,
         { method: "GET", headers });
 
@@ -15,10 +12,17 @@ async function showWelcome(){
     const welcomeText = document.createElement("h2");
 
     if(data.user){
+        const userRole = data.user.role || data.role;
+         if( userRole === "admin"){
+             const authorPage = document.createElement("a");
+             authorPage.href = `${AUTHOR_LINK}index.html`
+             authorPage.innerText = "Author page"
+             navBox.appendChild(authorPage);
+         }
         const logOut = document.createElement("button");
         logOut.innerText = "Log out";
         welcomeText.innerText = `Welcome, ${data.user.username}!`;
-        contentBox.append(logOut);
+        navBox.append(logOut, welcomeText);
 
         logOut.addEventListener("click", (e)=>{
             e.preventDefault();
@@ -27,8 +31,37 @@ async function showWelcome(){
         })
     } else {
         welcomeText.innerText = "Welcome, guest!";
+        const guestContent = document.createElement("div");
+        guestContent.innerHTML = `
+        <a href="sign-in.html">Sign In</a>
+        <a href="sign-up.html">Sign Up</ahre>
+        `
+        navBox.append(guestContent, welcomeText);
     }
-    contentBox.append(welcomeText);
 }
 
+async function getPosts(){
+    const postsBox = document.getElementById("posts-list");
+    const response = await fetch(`${API_BASE}/posts/public`);
+    const data = await response.json();
+    if(data.posts){
+        data.posts.forEach((post)=>{
+            const listItem = document.createElement("li");
+            const title = document.createElement("a");
+            title.innerText = post.title;
+            title.href = `postInfo.html?postId=${post.id}`
+            listItem.append(title);
+            if(post.previewImage !== null){
+                const img = document.createElement("img");
+                img.src = post.previewImage
+                listItem.append(img);
+            }
+            postsBox.append(listItem);
+        })
+    }
+}
+
+
+
 showWelcome();
+getPosts();

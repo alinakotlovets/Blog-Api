@@ -24,6 +24,7 @@ signInForm.addEventListener("submit", async (e)=>{
 
     if(data.redirectTo && data.token){
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         window.location.href = data.redirectTo;
     }
 

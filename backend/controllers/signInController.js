@@ -45,6 +45,11 @@ export async function postSignIn(req, res){
          jwt.sign({userId: user.id, username:user.username, role: user.role}, process.env.SECRET_KEY, {expiresIn: "1d"} ,(err, token)=>{
              res.status(200).json({
                  token: token,
+                 user: {
+                     id: user.id,
+                     username: user.username,
+                     role: user.role
+                 },
                  redirectTo: "index.html"
              })
          })
