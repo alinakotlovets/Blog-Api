@@ -1,5 +1,5 @@
 import {body, validationResult} from "express-validator";
-import {addCommentToBd, getCommentsToPost} from "../lib/queries.js";
+import {addCommentToBd, deleteCommentFromBd, getCommentsToPost, getCommentById} from "../lib/queries.js";
 
 
 export const validateComment = [
@@ -22,11 +22,23 @@ export async function addComment(req, res){
     let userId = req.user ? parseInt(req.user.id) : null;
     const {comment, postId} = req.body;
 
-    await addCommentToBd(comment, parseInt(postId), userId);
-    return res.status(200).json({
-        message: "comment added successfully"
-    })
+    const addedComment = await addCommentToBd(comment, parseInt(postId), userId);
+    const formatedDateComment = { ...addedComment,
+            formatedDate : new Intl.DateTimeFormat("uk-UA", {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            }).format(new Date(addedComment.createdAt)),
+        user: {
+            username:req.user.username,
+        }
+    }
 
+    return res.status(200).json({
+        comment: formatedDateComment
+    })
 }
 
 export async function getComments(req, res){
@@ -38,7 +50,44 @@ export async function getComments(req, res){
     }
 
     const comments = await getCommentsToPost(parseInt(postId));
+    const formatedDateComment = comments.map((comment)=>{
+        return {...comment,
+            formatedDate : new Intl.DateTimeFormat("uk-UA", {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            }).format(new Date(comment.createdAt))}
+    })
     return res.status(200).json({
-        comments
+        comments: formatedDateComment
+    })
+}
+
+export async function deleteComment(req,res){
+    const {commentId} = req.params;
+    if(!commentId){
+        res.status(400).json({
+            errors: [{msg: "Comment not found"}]
+        })
+    }
+
+    const user = req.user;
+    if (!user) {
+        return res.status(403).json({
+            errors: [{ msg: "You need to be logged in to delete a comment" }]
+        });
+    }
+    const comment = await  getCommentById(parseInt(commentId))
+    if(user.role !== "admin" && user.id !== comment.userId){
+        res.status(403).json({
+            errors: [{msg: "You dont have permission to delete this comment"}]
+        })
+    }
+
+    await deleteCommentFromBd(parseInt(commentId));
+    return res.status(200).json({
+        message: "Comment deleted successfully"
     })
 }

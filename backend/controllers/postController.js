@@ -98,20 +98,62 @@ export async function getPostsByAuthors(req, res){
     }
 
     const posts = await getAllAuthorPosts(parseInt(userId));
-    return res.status(200).json({posts})
+    if(!posts){
+
+    }
+    const postsWithFormatedDates = posts.map((post) => {
+        return {
+            ...post,
+            formatedCreateDate: new Intl.DateTimeFormat("uk-UA", {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            }).format(new Date(post.createdAt)),
+            formatedUpdateDate: new Intl.DateTimeFormat("uk-UA", {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            }).format(new Date(post.updatedAt))
+        };
+    });
+
+    return res.status(200).json({ posts: postsWithFormatedDates });
 }
 
 export async function getPostById(req, res){
     const {postId} = req.params
     if(!postId){
-        return res.status(400).json({
-            errors: [{msg: "Post id is required"}]
-        })
+        return res.status(404).json({ errors: [{ msg: "Posts not found" }]
+        });
     }
 
     const post = await getPostByIdFromDb(parseInt(postId));
+    if(!post){
+        return res.status(404).json({ errors: [{ msg: "Post not found" }] });
+    }
+    const postWithFormatedDate = {
+        ...post,
+        formatedCreateDate: new Intl.DateTimeFormat("uk-UA", {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(new Date(post.createdAt)),
+        formatedUpdateDate: new Intl.DateTimeFormat("uk-UA", {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(new Date(post.updatedAt))
+    };
     return res.status(200).json({
-        post
+        post: postWithFormatedDate
     })
 }
 

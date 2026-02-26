@@ -27,6 +27,7 @@ async function showWelcome(){
         logOut.addEventListener("click", (e)=>{
             e.preventDefault();
             localStorage.removeItem("token");
+            localStorage.removeItem("user");
             window.location.href = "sign-in.html";
         })
     } else {

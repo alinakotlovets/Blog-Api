@@ -52,7 +52,10 @@ export async function getPostByIdFromDb(postId){
 }
 
 export async function deletePostFromDb(postId){
-    return prisma.post.delete({where: {id: postId}})
+    return prisma.$transaction(async (tx)=>{
+        await  tx.comment.deleteMany({where:{postId: postId}});
+        await tx.post.delete({where: {id: postId}})
+    })
 }
 
 export async function getPublicPostsFromDb(){
@@ -71,5 +74,23 @@ export async function addCommentToBd(comment, postId, userId){
 }
 
 export async function getCommentsToPost(postId){
-    return prisma.comment.findMany({where: {postId: postId}})
+    return prisma.comment.findMany(
+        {where: {postId: postId},
+            include:{
+            user:{
+                select:{
+                    id: true,
+                    username: true
+                }
+            }
+        }
+        })
+}
+
+export async function deleteCommentFromBd(commentId){
+    return prisma.comment.delete({where: {id: commentId}})
+}
+
+export async function getCommentById(commentId){
+    return prisma.comment.findUnique({where: {id: commentId}})
 }

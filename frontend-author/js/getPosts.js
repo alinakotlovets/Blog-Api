@@ -29,6 +29,14 @@ postBox.addEventListener("click", async (e)=>{
 
 })
 
+postBox.addEventListener("click", (e)=>{
+    const commentsBtn = e.target.closest(".post-comments")
+    if(!commentsBtn) return;
+    e.preventDefault();
+    const postId = commentsBtn.dataset.postId;
+    window.location.href = `comments.html?postId=${postId}`;
+})
+
 
 async function getPosts(){
     const response = await fetch(`${API_BASE}/posts`, {
@@ -44,6 +52,7 @@ async function getPosts(){
             <h3>${post.title}</h3>
             <button class="delete-post-btn" data-post-id="${post.id}" >Delete</button>
             <button class="edit-post-btn" data-post-id="${post.id}">Edit</button>
+            <button class=post-comments data-post-id="${post.id}">Comments</button>           
             `
             postBox.append(postItem);
         })
