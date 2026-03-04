@@ -1,7 +1,7 @@
 import {prisma} from "./prisma.js";
 import {response} from "express";
 
-export async function addUserToBd(username, password, role){
+export async function addUserToDb(username, password, role){
     return prisma.user.create({data: {
             username: username,
             password: password,
@@ -13,7 +13,7 @@ export async function getUserByUsername(username){
     return prisma.user.findUnique({where: {username: username}});
 }
 
-export async function addPostToBd(title, content, previewImage, isPublic, authorId){
+export async function addPostToDb(title, content, previewImage, isPublic, authorId){
     return prisma.post.create({data: {
                 title: title,
                 content: content,
@@ -23,7 +23,7 @@ export async function addPostToBd(title, content, previewImage, isPublic, author
             }})
 }
 
-export async function editPostInBd(postId, title, content, previewImage, isPublic){
+export async function editPostInDb(postId, title, content, previewImage, isPublic){
     let updateData = {};
     if (title !== undefined) updateData.title = title;
     if (content !== undefined) updateData.content = content;
@@ -63,12 +63,19 @@ export async function getPublicPostsFromDb(){
 }
 
 
-export async function addCommentToBd(comment, postId, userId){
+export async function addCommentToDb(comment, postId, userId){
     return prisma.comment.create({
         data: {
             comment: comment,
             postId: postId,
             userId: userId
+        },
+        include: {
+         user:{
+             select:{
+                 username: true
+             }
+         }
         }
     })
 }
@@ -87,10 +94,14 @@ export async function getCommentsToPost(postId){
         })
 }
 
-export async function deleteCommentFromBd(commentId){
+export async function deleteCommentFromDb(commentId){
     return prisma.comment.delete({where: {id: commentId}})
 }
 
 export async function getCommentById(commentId){
     return prisma.comment.findUnique({where: {id: commentId}})
+}
+
+export async function editCommentInDb(commentId, comment){
+    return prisma.comment.update({where: {id: commentId}, data:{comment:comment}})
 }

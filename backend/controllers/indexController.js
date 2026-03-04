@@ -1,11 +1,17 @@
-import jwt from "jsonwebtoken";
 export function getIndexPageInfo(req, res){
+    let response;
     if(req.user){
-        return res.status(200).json({
-            message: "You on Home page!",
-            user: req.user
-        })
+        response = {
+            user: {
+                id: req.user.id,
+                username: req.user.username,
+                role: req.user.role
+            }
+        };
     } else {
-        return res.status(200).json({message: "You on Home page!"})
+        response = {
+            user: null
+        }
     }
+    return res.status(200).json(response)
 }

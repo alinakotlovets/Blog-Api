@@ -22,9 +22,7 @@ export async function postSignIn(req, res){
      const errors = validationResult(req);
      if(!errors.isEmpty()){
       return res.status(400).json({
-          errors: errors.array(),
-          username: req.body.username,
-          password: req.body.password
+          errors: errors.array()
       })
      }
 
@@ -34,33 +32,23 @@ export async function postSignIn(req, res){
      if(!user){
          return  res.status(404).json(
              {
-             errors: ["User with this username not found"],
-             username: req.body.username,
-             password: req.body.password
+             errors: [{msg: "User with this username not found"}],
          })
      }
 
      const match = await bcrypt.compare(password, user.password);
      if(match){
          jwt.sign({userId: user.id, username:user.username, role: user.role}, process.env.SECRET_KEY, {expiresIn: "1d"} ,(err, token)=>{
-             res.status(200).json({
-                 token: token,
-                 user: {
-                     id: user.id,
-                     username: user.username,
-                     role: user.role
-                 },
-                 redirectTo: "index.html"
+             if(err) return res.status(500).json({errors: [{msg: "Server error"}]});
+
+             return res.status(200).json({
+                 token: token
              })
          })
 
      } else{
-         return  res.status(404).json({
-                 errors: ["Password incorrect"],
-                 username: req.body.username,
-                 password: req.body.password
+         return  res.status(401).json({
+                 errors: [{msg: "Password incorrect"}],
              })
      }
-
-
 }

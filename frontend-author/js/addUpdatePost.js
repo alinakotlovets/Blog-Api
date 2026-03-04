@@ -24,7 +24,6 @@ if(postId){
 
     const data = await response.json();
     if(data.post){
-        console.log(data.post)
         document.getElementById("title").value = data.post.title;
         document.getElementById("content").value = data.post.content;
         document.getElementById("isPublic").checked = data.post.isPublic;

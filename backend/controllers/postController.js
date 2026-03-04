@@ -1,6 +1,8 @@
 import {body, matchedData, validationResult} from "express-validator";
-import {addPostToBd, editPostInBd, getAllAuthorPosts, getPostByIdFromDb, deletePostFromDb, getPublicPostsFromDb} from "../lib/queries.js";
-import cloudinary from "../middleware/cloudinary.js";
+import {addPostToDb, editPostInDb, getAllAuthorPosts, getPostByIdFromDb, deletePostFromDb, getPublicPostsFromDb} from "../lib/queries.js";
+import cloudinary from "../utils/cloudinary.js";
+import {formatDates} from "../utils/formatDate.js";
+
 export const validatePost = [
     body("title")
         .trim()
@@ -51,7 +53,7 @@ export async function addPost(req, res){
     }
 
 
-    await addPostToBd(data.title, data.content, previewImg, data.isPublic, parseInt(req.user.id));
+    await addPostToDb(data.title, data.content, previewImg, data.isPublic, parseInt(req.user.id));
     return  res.status(200).json({
         message: "post added!"
     })
@@ -77,7 +79,7 @@ export async function editPost(req, res){
         previewImg = result.secure_url;
     }
 
-    await editPostInBd(parseInt(postId), title, content, previewImg, isPublic, parseInt(req.user.id));
+    await editPostInDb(parseInt(postId), title, content, previewImg, isPublic, parseInt(req.user.id));
     return  res.status(200).json({
         message: "post edit!"
     })
@@ -102,23 +104,7 @@ export async function getPostsByAuthors(req, res){
 
     }
     const postsWithFormatedDates = posts.map((post) => {
-        return {
-            ...post,
-            formatedCreateDate: new Intl.DateTimeFormat("uk-UA", {
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            }).format(new Date(post.createdAt)),
-            formatedUpdateDate: new Intl.DateTimeFormat("uk-UA", {
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            }).format(new Date(post.updatedAt))
-        };
+        return formatDates(post);
     });
 
     return res.status(200).json({ posts: postsWithFormatedDates });
@@ -135,23 +121,7 @@ export async function getPostById(req, res){
     if(!post){
         return res.status(404).json({ errors: [{ msg: "Post not found" }] });
     }
-    const postWithFormatedDate = {
-        ...post,
-        formatedCreateDate: new Intl.DateTimeFormat("uk-UA", {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        }).format(new Date(post.createdAt)),
-        formatedUpdateDate: new Intl.DateTimeFormat("uk-UA", {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        }).format(new Date(post.updatedAt))
-    };
+    const postWithFormatedDate = formatDates(post);
     return res.status(200).json({
         post: postWithFormatedDate
     })

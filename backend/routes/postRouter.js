@@ -1,5 +1,5 @@
 import express from "express";
-import {upload} from "../middleware/multer.js"
+import {upload} from "../utils/multer.js"
 import {verifyToken} from "../middleware/verifyToken.js";
 import {validatePost, addPost, editPost, getPostsByAuthors, getPostById, deletePost, getPublicPosts} from "../controllers/postController.js";
 import {validateFile} from "../middleware/validateFile.js";

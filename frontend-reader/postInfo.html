@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
     <title>Post</title>
 </head>
 <body>
+<div id="edit-modal" class="edit-modal">
+    <div class="edit-form">
+        <h3>Edit Comment</h3>
+        <textarea id="edit-comment-text" class="edit-comment-text"></textarea>
+        <div style="margin-top:10px; display:flex; justify-content:space-between;">
+            <button id="cancel-edit-btn">Cancel</button>
+            <button id="save-edit-btn">Save</button>
+        </div>
+        <div id="errors-box"></div>
+    </div>
+</div>
+<nav id="nav-box">
+</nav>
 <div id="post-info-box">
 </div>
 <form id="comment-form">
@@ -15,9 +29,10 @@
 </form>
 <div>
     <ul id="comment-list">
-
     </ul>
 </div>
 </body>
+<script type="module" src="js/navbar.js"></script>
 <script type="module" src="js/postPage.js"></script>
+<script type="module" src="js/editModal.js"></script>
 </html>

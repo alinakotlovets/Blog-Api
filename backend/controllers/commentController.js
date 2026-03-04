@@ -1,6 +1,6 @@
 import {body, validationResult} from "express-validator";
-import {addCommentToBd, deleteCommentFromBd, getCommentsToPost, getCommentById} from "../lib/queries.js";
-
+import {addCommentToDb, deleteCommentFromDb, getCommentsToPost, getCommentById, editCommentInDb} from "../lib/queries.js";
+import {formatDates} from "../utils/formatDate.js";
 
 export const validateComment = [
     body("comment")
@@ -12,6 +12,14 @@ export const validateComment = [
         .notEmpty().withMessage("Post id is required")
 ]
 
+export const validateEditComment = [
+    body("comment")
+        .trim()
+        .notEmpty().withMessage("Comment is required")
+        .isLength({ min: 2, max: 60 }).withMessage("Comment length must be 2-60 characters")
+];
+
+
 export async function addComment(req, res){
     const errors = validationResult(req);
     if(!errors.isEmpty()){
@@ -22,19 +30,8 @@ export async function addComment(req, res){
     let userId = req.user ? parseInt(req.user.id) : null;
     const {comment, postId} = req.body;
 
-    const addedComment = await addCommentToBd(comment, parseInt(postId), userId);
-    const formatedDateComment = { ...addedComment,
-            formatedDate : new Intl.DateTimeFormat("uk-UA", {
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            }).format(new Date(addedComment.createdAt)),
-        user: {
-            username:req.user.username,
-        }
-    }
+    const addedComment = await addCommentToDb(comment, parseInt(postId), userId);
+    const formatedDateComment = formatDates(addedComment);
 
     return res.status(200).json({
         comment: formatedDateComment
@@ -51,43 +48,63 @@ export async function getComments(req, res){
 
     const comments = await getCommentsToPost(parseInt(postId));
     const formatedDateComment = comments.map((comment)=>{
-        return {...comment,
-            formatedDate : new Intl.DateTimeFormat("uk-UA", {
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-            }).format(new Date(comment.createdAt))}
-    })
+        return formatDates(comment)});
+
     return res.status(200).json({
         comments: formatedDateComment
     })
 }
 
-export async function deleteComment(req,res){
-    const {commentId} = req.params;
-    if(!commentId){
-        res.status(400).json({
-            errors: [{msg: "Comment not found"}]
-        })
+async function deleteEditCommentValidate(req){
+    const { commentId } = req.params;
+    if (!commentId) {
+        throw { status: 400, message: "Comment not found" };
     }
 
     const user = req.user;
     if (!user) {
-        return res.status(403).json({
-            errors: [{ msg: "You need to be logged in to delete a comment" }]
-        });
-    }
-    const comment = await  getCommentById(parseInt(commentId))
-    if(user.role !== "admin" && user.id !== comment.userId){
-        res.status(403).json({
-            errors: [{msg: "You dont have permission to delete this comment"}]
-        })
+        throw { status: 403, message: "You need to be logged in to delete or edit a comment" };
     }
 
-    await deleteCommentFromBd(parseInt(commentId));
-    return res.status(200).json({
-        message: "Comment deleted successfully"
-    })
+    const comment = await getCommentById(parseInt(commentId));
+    if (!comment) {
+        throw { status: 404, message: "Comment does not exist" };
+    }
+
+    if (user.role !== "admin" && user.id !== comment.userId) {
+        throw { status: 403, message: "You don't have permission to delete or edit this comment" };
+    }
+
+    return comment;
+}
+
+export async function deleteComment(req,res){
+    try {
+        const comment = await deleteEditCommentValidate(req);
+        await deleteCommentFromDb(comment.id);
+        return res.status(200).json({
+            message: "Comment deleted successfully"
+        })
+    }
+    catch (err){
+        return res.status(err.status|| 500).json({ errors: [{ msg: err.message || "Server error"}] });
+    }
+}
+
+export async function editComment(req, res){
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        const { comment } = req.body;
+        const commentFromDb = await deleteEditCommentValidate(req);
+        const createdComment = await editCommentInDb(commentFromDb.id, comment);
+        return res.status(200).json({
+            message: "Comment edited successfully",
+            comment: createdComment
+        })
+    } catch (err){
+        return res.status(err.status|| 500).json({ errors: [{ msg: err.message || "Server error"}] });
+    }
 }

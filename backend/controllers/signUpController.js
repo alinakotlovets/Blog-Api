@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs"
-import {addUserToBd} from "../lib/queries.js";
+import {addUserToDb} from "../lib/queries.js";
 import {body, matchedData, validationResult} from "express-validator";
 
 
@@ -33,10 +33,7 @@ export async function addUser(req, res){
     const  errors = validationResult(req);
     if(!errors.isEmpty()){
         return res.status(400).json({
-            errors: errors.array(),
-            username: req.body.username,
-            password: req.body.password,
-            confirmPassword: req.body.confirmPassword
+            errors: errors.array()
         })
     }
 
@@ -45,9 +42,8 @@ export async function addUser(req, res){
         role = "reader"
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await addUserToBd(username, hashedPassword, role);
+    await addUserToDb(username, hashedPassword, role);
     res.status(200).json({
-        message:"user added successfully",
-        redirectTo: "sign-in.html"
+        message:"user added successfully"
     })
 }
