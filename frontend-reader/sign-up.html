@@ -2,20 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign Up</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<form class="sign-up-form">
-    <label for="username">Username:</label>
-    <input type="text" name="username" id="username">
-    <label for="password">Password:</label>
-    <input type="password" name="password" id="password">
-    <label for="confirmPassword">Password:</label>
-    <input type="password" name="confirmPassword" id="confirmPassword">
-    <button type="submit">Submit</button>
-    <div id="sign-up-errors"></div>
-</form>
-<h3>Already have an account yet? <a href="sign-in.html">Sign in</a></h3>
+<div class="form-box">
+    <h2>Sign Up:</h2>
+    <form class="sign-up-form">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username">
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password">
+        <label for="confirmPassword">Password:</label>
+        <input type="password" name="confirmPassword" id="confirmPassword">
+        <div class="btn-box">
+        <button class="green-btn" type="submit">Submit</button>
+        </div>
+        <div id="sign-up-errors"></div>
+    </form>
+    <h3>Already have an account yet? <a href="sign-in.html">Sign in</a></h3>
+</div>
 </body>
 <script type="module" src="js/sign-up.js"></script>
 </html>

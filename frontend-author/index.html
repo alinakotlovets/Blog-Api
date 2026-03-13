@@ -2,14 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Title</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<nav>
+    <a href="index.html">Home</a>
+    <a id="reader-page-link" href="">Reader page</a>
+    <a href="add-update-post.html">Add Post</a>
+</nav>
+<div class="container">
 <div id="content-box">
 </div>
-<a href="add-update-post.html">Add Post</a>
-<div id="posts"></div>
+<div class="post-box" id="posts"></div>
+</div>
 </body>
+<script type="module">
+    import {READER_FRONT} from "./config.js";
+    const pageLink = document.getElementById("reader-page-link");
+    pageLink.href = `${READER_FRONT}/index.html`;
+</script>
 <script type="module" src="js/getPosts.js"></script>
 <script type="module" src="js/verifyAdminStatus.js"></script>
 </html>

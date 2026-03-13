@@ -11,25 +11,28 @@
     <div class="edit-form">
         <h3>Edit Comment</h3>
         <textarea id="edit-comment-text" class="edit-comment-text"></textarea>
-        <div style="margin-top:10px; display:flex; justify-content:space-between;">
-            <button id="cancel-edit-btn">Cancel</button>
-            <button id="save-edit-btn">Save</button>
+        <div class="edit-comment-btn-box">
+            <button class="delete-comment-btn" id="cancel-edit-btn">Cancel</button>
+            <button class="edit-comment-btn" id="save-edit-btn">Save</button>
         </div>
         <div id="errors-box"></div>
     </div>
 </div>
 <nav id="nav-box">
 </nav>
-<div id="post-info-box">
+
+<div class="container">
+<div class="post-info-box" id="post-info-box">
 </div>
-<form id="comment-form">
+<form class="comment-form"  id="comment-form">
     <label for="comment">Comment:</label>
-    <input type="text" id="comment" name="comment">
-    <button type="submit">Comment</button>
+    <textarea class="textarea-comment" id="comment" name="comment"></textarea>
+    <button class="green-btn" type="submit">Comment</button>
 </form>
 <div>
     <ul id="comment-list">
     </ul>
+</div>
 </div>
 </body>
 <script type="module" src="js/navbar.js"></script>

@@ -20,7 +20,7 @@ function renderLoggedUser(user){
     }
     const logOut = document.createElement("button");
     logOut.innerText = "Log out";
-
+    logOut.classList.add("log-out-btn")
     navBox.append(logOut);
 
     logOut.addEventListener("click", handleLogout);

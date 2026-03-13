@@ -59,7 +59,18 @@ export async function deletePostFromDb(postId){
 }
 
 export async function getPublicPostsFromDb(){
-    return prisma.post.findMany({where:{isPublic: true}})
+    return prisma.post.findMany({
+        where:{
+            isPublic: true
+        },
+        include: {
+            user:{
+                select:{
+                    username: true
+                }
+            }
+        }
+    })
 }
 
 

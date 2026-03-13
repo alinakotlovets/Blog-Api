@@ -100,9 +100,6 @@ export async function getPostsByAuthors(req, res){
     }
 
     const posts = await getAllAuthorPosts(parseInt(userId));
-    if(!posts){
-
-    }
     const postsWithFormatedDates = posts.map((post) => {
         return formatDates(post);
     });
@@ -145,5 +142,8 @@ export async function getPublicPosts(req, res){
     if(!posts){
         return res.status(404).json({errors:[{msg:"posts not found"}]})
     }
-    return res.status(200).json({posts})
+    const postsWithFormatedDates = posts.map((post) => {
+        return formatDates(post);
+    });
+    return res.status(200).json({posts: postsWithFormatedDates})
 }

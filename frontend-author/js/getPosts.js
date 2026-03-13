@@ -39,24 +39,49 @@ postBox.addEventListener("click", (e)=>{
 
 
 async function getPosts(){
-    const response = await fetch(`${API_BASE}/posts`, {
-        method:"GET",
-        headers: headers
-    } )
-    const data = await response.json();
+    postBox.innerHTML = "";
+    const loadingMessage = document.createElement("p");
+    loadingMessage.innerText = "The server is waking up now. Wait a minute or two, if that doesn't work try refreshing the page.";
+    postBox.append(loadingMessage);
+    try {
+        const response = await fetch(`${API_BASE}/posts`, {
+            method:"GET",
+            headers: headers
+        } )
+        const data = await response.json();
+        loadingMessage.remove();
 
-    if(data.posts){
-        data.posts.forEach((post)=>{
-            const postItem = document.createElement("div")
-            postItem.innerHTML = `
+        if (data.errors){
+            data.errors.forEach((error)=>{
+                const errorText = document.createElement("p");
+                errorText.innerText = error.msg;
+                postBox.append(errorText);
+            })
+        }
+
+        if(data.posts){
+            data.posts.forEach((post)=>{
+                const postItem = document.createElement("div")
+                postItem.innerHTML = `
             <h3>${post.title}</h3>
-            <button class="delete-post-btn" data-post-id="${post.id}" >Delete</button>
-            <button class="edit-post-btn" data-post-id="${post.id}">Edit</button>
-            <button class=post-comments data-post-id="${post.id}">Comments</button>           
+            <div class="post-item-btn-box">
+            <button class="red-btn delete-post-btn" data-post-id="${post.id}" >Delete</button>
+            <button class="blue-btn edit-post-btn" data-post-id="${post.id}">Edit</button>
+            <button class="green-btn post-comments" data-post-id="${post.id}">Comments</button>     
+            </div>      
             `
-            postBox.append(postItem);
-        })
+                postItem.classList.add("post-item")
+                postBox.append(postItem);
+            })
+        }
+
+    } catch (e){
+        loadingMessage.remove();
+        const errorText = document.createElement("p");
+        errorText.innerText = e.message || "server error";
+        postBox.append(errorText);
     }
+
 }
 
 
